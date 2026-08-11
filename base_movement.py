@@ -6,7 +6,8 @@ from .FunctionBasedContextManager import FunctionBasedContextManager
 from sbot import * #type: ignore
 from .my_motor import *
 
-DEFAULT_POWER = .2
+DEFAULT_POWER = 1
+DEFAULT_TURN_POWER = .2
 DEFAULT_END = BRAKE
 DEFAULT_OFFSET = 0
 
@@ -30,12 +31,12 @@ class BaseMovement:
         for motor in self.motors:
             motor.set_power(end)
 
-    def turn_left(self, power: int = DEFAULT_POWER, offset: int = DEFAULT_OFFSET, *, end: int = DEFAULT_END):
+    def turn_left(self, power: int = DEFAULT_TURN_POWER, offset: int = DEFAULT_OFFSET, *, end: int = DEFAULT_END):
         self.left_motor.set_power(power + offset)
         self.right_motor.set_power(offset - power)
         return FunctionBasedContextManager(lambda: self.stop(end=end))
 
-    def turn_right(self, power: int = DEFAULT_POWER, offset: int = DEFAULT_OFFSET, *, end: int = DEFAULT_END):
+    def turn_right(self, power: int = DEFAULT_TURN_POWER, offset: int = DEFAULT_OFFSET, *, end: int = DEFAULT_END):
         self.right_motor.set_power(power + offset)
         self.left_motor.set_power(offset - power)
         return FunctionBasedContextManager(lambda: self.stop(end=end))
