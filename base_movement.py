@@ -11,7 +11,7 @@ DEFAULT_END = BRAKE
 
 
 class BaseMovement:
-    def __init__(self, sleeper: Callable[[int | float], None], *motors: MyMotor):
+    def __init__(self, sleeper: Callable[[float], None], *motors: MyMotor):
         self.motors = list(motors)
         self._sleeper = sleeper
     
@@ -29,14 +29,14 @@ class BaseMovement:
         self._sleeper(time)
 
 
-    def forwards_time(self, time: float | int = 0, power: int = DEFAULT_POWER, end: int = DEFAULT_END):
+    def forwards_time(self, time: float = 0, power: int = DEFAULT_POWER, end: int = DEFAULT_END):
         with self.forwards(power, end):
             self.wait(time)
 
     def backwards(self, power: int = DEFAULT_POWER, end: int = DEFAULT_END):
         return self.forwards(-1 * power, end)
 
-    def backwards_time(self, time: float | int = 0, power: int = DEFAULT_POWER, end: int = DEFAULT_END):
+    def backwards_time(self, time: float = 0, power: int = DEFAULT_POWER, end: int = DEFAULT_END):
         self.forwards_time(time, power * -1, end)
 
     def move_until_blocking(self, predicate: Callable[[], bool], movement: Callable[[int, int], FunctionBasedContextManager], power: int= DEFAULT_POWER, end: int = DEFAULT_END):
@@ -46,5 +46,5 @@ class BaseMovement:
             movement_manager.stop()
 
     @staticmethod
-    def get_sleep_prod():
+    def get_sleep_prod() -> Callable[[float], None]:
         return utils.sleep
