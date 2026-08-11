@@ -44,4 +44,7 @@ class BaseMovement:
             while not predicate():
                 pass
             movement_manager.stop()
-    
+
+    @staticmethod
+    def get_sleep_prod():
+        return utils.sleep
