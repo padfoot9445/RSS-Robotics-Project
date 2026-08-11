@@ -35,10 +35,14 @@ def base_movement(sleeper: SleeperMock, left_motor: MyMotorMock, right_motor: My
 def power_values():
     return [x/100 for x in range(-100, 105, 5)]
 
-def test_forwards(left_motor: MyMotorMock, right_motor: MyMotorMock, motors: list[MyMotorMock], base_movement: BaseMovement, power_values: power_type):
+def test_forwards(motors: list[MyMotorMock], base_movement: BaseMovement, power_values: power_type, logger: CommandLog):
     base_movement.move(Direction.FORWARDS, axis_power=power_values)
     for motor in motors:
-        suspected_set_power = motor.logger.log[0]
-        assert suspected_set_power[0] == CommandType.SET_POWER and len(suspected_set_power[1]) == 1 and suspected_set_power[1][0] == power_values
+        assert logger.exists_log(CommandType.SET_POWER, motor.identifier, power_values)
 
-        
+def test_backwards(motors: list[MyMotorMock], base_movement: BaseMovement, power_values: power_type, logger: CommandLog):
+    base_movement.move(Direction.BACKWARDS, axis_power=power_values)
+    for motor in motors:
+        assert logger.exists_log(CommandType.SET_POWER, motor.identifier, power_values * -1)
+
+# def test_turn_left(left_motor: MyMotorMock, right_motor: MyMotorMock)
