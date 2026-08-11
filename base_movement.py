@@ -2,11 +2,11 @@ from dataclasses import dataclass
 from typing import Callable, Literal
 
 import sbot
-from FunctionBasedContextManager import FunctionBasedContextManager
+from .FunctionBasedContextManager import FunctionBasedContextManager
 from sbot import * #type: ignore
-from my_motor import *
+from .my_motor import *
 
-DEFAULT_POWER = 1
+DEFAULT_POWER = .2
 DEFAULT_END = BRAKE
 DEFAULT_OFFSET = 0
 
@@ -19,12 +19,12 @@ class BaseMovement:
     @property
     def left_motor(self) -> MyMotor:
         #TODO: Generalize
-        return self.motors[0]
+        return self.motors[1]
 
     @property
     def right_motor(self) -> MyMotor:
         #TODO: Generalize
-        return self.motors[1]
+        return self.motors[0]
 
     def stop(self, *, end: int = DEFAULT_END):
         for motor in self.motors:
@@ -61,10 +61,10 @@ class BaseMovement:
     def backwards_time(self, time: float = 0, power: int = DEFAULT_POWER, *, end: int = DEFAULT_END):
         self.forwards_time(time, power * -1, end=end)
 
-    def move_until_blocking(self, predicate: Callable[[], bool], movement: Callable[[], FunctionBasedContextManager]):
+    def move_until_blocking(self, predicate: Callable[[], bool], movement: Callable[[], FunctionBasedContextManager], ivl: float = 0.1):
         with movement():
             while not predicate():
-                pass
+                self.wait(ivl)
         
 
     def move_time_blocking(self, time: float, movement: Callable[[], FunctionBasedContextManager]):
