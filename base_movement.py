@@ -30,9 +30,11 @@ class BaseMovement:
             motor.set_power(end)
 
     def move(self, direction: Direction, *, axis_power: power_type = DEFAULT_POWER, turn_power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, end_power: power_type = DEFAULT_END):
+        assert axis_power >= 0 and turn_power >= 0
+
         match direction:
             case Direction.STOP:
-                self._stop()
+                self._stop(end=end_power)
             case Direction.FORWARDS:
                 self._forwards(power=axis_power, end=end_power)
             case Direction.BACKWARDS:

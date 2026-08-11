@@ -31,18 +31,44 @@ def sleeper(logger: CommandLog):
 def base_movement(sleeper: SleeperMock, left_motor: MyMotorMock, right_motor: MyMotorMock):
     return BaseMovement(sleeper.sleep, left_motor, right_motor)
 
-@pytest.fixture
-def power_values():
-    return [x/100 for x in range(-100, 105, 5)]
+def power_values(neg_allowed: bool = False):
+    return [x/100 for x in range(-100 if neg_allowed else 0, 110, 10)]
 
-def test_forwards(motors: list[MyMotorMock], base_movement: BaseMovement, power_values: power_type, logger: CommandLog):
-    base_movement.move(Direction.FORWARDS, axis_power=power_values)
+@pytest.mark.parametrize("power_value", power_values())
+def test_forwards(motors: list[MyMotorMock], base_movement: BaseMovement, power_value: power_type, logger: CommandLog):
+    base_movement.move(Direction.FORWARDS, axis_power=power_value)
     for motor in motors:
-        assert logger.exists_log(CommandType.SET_POWER, motor.identifier, power_values)
+        assert logger.exists_log(CommandType.SET_POWER, motor.identifier, power_value)
 
-def test_backwards(motors: list[MyMotorMock], base_movement: BaseMovement, power_values: power_type, logger: CommandLog):
-    base_movement.move(Direction.BACKWARDS, axis_power=power_values)
+@pytest.mark.parametrize("power_value", power_values())
+def test_backwards(motors: list[MyMotorMock], base_movement: BaseMovement, power_value: power_type, logger: CommandLog):
+    base_movement.move(Direction.BACKWARDS, axis_power=power_value)
     for motor in motors:
-        assert logger.exists_log(CommandType.SET_POWER, motor.identifier, power_values * -1)
+        assert logger.exists_log(CommandType.SET_POWER, motor.identifier, power_value * -1)
 
-# def test_turn_left(left_motor: MyMotorMock, right_motor: MyMotorMock)
+def skip_invalid_turn_test(turn_speed: power_type, offset: power_type):
+    if abs(turn_speed) + abs(offset) > 1 or turn_speed <= 0:
+            pytest.skip()
+
+@pytest.mark.parametrize("turn_speed", power_values())
+@pytest.mark.parametrize("offset", power_values(True))
+def test_turn_left(left_motor: MyMotorMock, right_motor: MyMotorMock, base_movement: BaseMovement, turn_speed: power_type, offset: power_type):
+    skip_invalid_turn_test(turn_speed, offset)
+    base_movement.move(Direction.LEFT, turn_power = turn_speed, offset=offset)
+    assert left_motor.power == (offset - turn_speed) and right_motor.power == (turn_speed + offset)
+    assert left_motor.power < right_motor.power, f"{turn_speed}, {offset}" # turning left so left tyre must spin slower
+
+@pytest.mark.parametrize("turn_speed", power_values())
+@pytest.mark.parametrize("offset", power_values(True))
+def test_turn_right(left_motor: MyMotorMock, right_motor: MyMotorMock, base_movement: BaseMovement, turn_speed: power_type, offset: power_type):
+    skip_invalid_turn_test(turn_speed, offset)
+    base_movement.move(Direction.RIGHT, turn_power = turn_speed, offset=offset)
+    assert left_motor.power == (turn_speed + offset) and right_motor.power == (offset - turn_speed)
+    assert left_motor.power > right_motor.power # turning right so right tyre must spin slower
+
+@pytest.mark.parametrize("direction", [Direction.FORWARDS, Direction.BACKWARDS, Direction.LEFT, Direction.RIGHT])
+@pytest.mark.parametrize("end_value", power_values(True))
+def test_stop(left_motor: MyMotorMock, right_motor: MyMotorMock, base_movement: BaseMovement, direction: Direction, end_value: power_type):
+    base_movement.move(direction)
+    base_movement.move(Direction.STOP, end_power=end_value)
+    assert left_motor.power == right_motor.power == end_value
