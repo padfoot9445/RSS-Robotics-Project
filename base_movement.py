@@ -46,12 +46,12 @@ class BaseMovement:
         return FunctionBasedContextManager(lambda: self.move(Direction.STOP, end_power=end_power))
 
     def _turn_left(self, power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, *, end: power_type = DEFAULT_END):
-        self.left_motor.set_power(power + offset)
-        self.right_motor.set_power(offset - power)
+        self.left_motor.set_power(offset - power)
+        self.right_motor.set_power(power + offset)
 
     def _turn_right(self, power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, *, end: power_type = DEFAULT_END):
-        self.right_motor.set_power(power + offset)
-        self.left_motor.set_power(offset - power)
+        self.right_motor.set_power(offset - power)
+        self.left_motor.set_power(power + offset)
 
     
     def _forwards(self, power: power_type = DEFAULT_POWER, *, end: power_type = DEFAULT_END):
