@@ -29,7 +29,7 @@ class BaseMovement:
         for motor in self.motors:
             motor.set_power(end)
 
-    def move(self, direction: Direction, *, axis_power: power_type = DEFAULT_POWER, turn_power: power_type = DEFAULT_TURN_POWER, offset: int = DEFAULT_OFFSET, end_power: power_type = DEFAULT_END):
+    def move(self, direction: Direction, *, axis_power: power_type = DEFAULT_POWER, turn_power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, end_power: power_type = DEFAULT_END):
         match direction:
             case Direction.STOP:
                 self._stop()
@@ -45,11 +45,11 @@ class BaseMovement:
     def _get_stop_context_manager(self, end_power: power_type):
         return FunctionBasedContextManager(lambda: self.move(Direction.STOP, end_power=end_power))
 
-    def _turn_left(self, power: power_type = DEFAULT_TURN_POWER, offset: int = DEFAULT_OFFSET, *, end: power_type = DEFAULT_END):
+    def _turn_left(self, power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, *, end: power_type = DEFAULT_END):
         self.left_motor.set_power(power + offset)
         self.right_motor.set_power(offset - power)
 
-    def _turn_right(self, power: power_type = DEFAULT_TURN_POWER, offset: int = DEFAULT_OFFSET, *, end: power_type = DEFAULT_END):
+    def _turn_right(self, power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, *, end: power_type = DEFAULT_END):
         self.right_motor.set_power(power + offset)
         self.left_motor.set_power(offset - power)
 
