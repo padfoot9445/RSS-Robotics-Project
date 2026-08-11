@@ -1,8 +1,6 @@
 from dataclasses import dataclass
-from sbot import *
+from sbot import motors
 
-BRAKE: int
-COAST: int
 
 @dataclass
 class MyMotor:
@@ -13,4 +11,4 @@ class MyMotor:
         return 1 if not self.reversed else -1
     
     def set_power(self, power: int):
-        sbot.motors.set_power(self.identifier, power * self.coefficient)
+        motors.set_power(self.identifier, power * self.coefficient)

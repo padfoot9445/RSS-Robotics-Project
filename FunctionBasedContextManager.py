@@ -3,9 +3,12 @@ from typing import Callable
 
 class FunctionBasedContextManager:
     def __init__(self, f: Callable[[], None]):
-        self.after_function = f
+        self.stop = f
+        self._stopped = False
 
     def __enter__(self):
-        pass
+        return self
     def __exit__(self, exc_type, exc, tb):
-        self.after_function()
+        if not self._stopped:
+            self.stop()
+        self._stopped = True
