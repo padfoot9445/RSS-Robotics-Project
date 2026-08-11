@@ -56,8 +56,8 @@ class BaseMovement:
     def backwards_time(self, time: float = 0, power: int = DEFAULT_POWER, *, end: int = DEFAULT_END):
         self.forwards_time(time, power * -1, end=end)
 
-    def move_until_blocking(self, predicate: Callable[[], bool], movement: Callable[[int, int], FunctionBasedContextManager], power: int= DEFAULT_POWER, *, end: int = DEFAULT_END):
-        with movement(power, end):
+    def move_until_blocking(self, predicate: Callable[[], bool], movement: Callable[[], FunctionBasedContextManager]):
+        with movement():
             while not predicate():
                 pass
         
