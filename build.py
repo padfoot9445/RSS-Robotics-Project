@@ -18,7 +18,7 @@ def main():
             files[file] = file_path.read_text(encoding="UTF8")
             lines = files[file].splitlines()
             for i in range(len(lines)):
-                tokenized = list(filter(lambda x: not (x.isspace() or len(x) == 0), lines[i].split()))
+                tokenized = list(filter(lambda x: True, lines[i].split()))
                 if len(tokenized) < 2:
                     continue
                 if tokenized[0] in {"from", "import"}:
