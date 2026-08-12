@@ -23,7 +23,8 @@ def main():
                     continue
                 if tokenized[0] in {"from", "import"}:
                     tokenized[1] = remove_dot(tokenized[1])
-                lines[i] = " ".join(tokenized)
+                    lines[i] = " ".join(tokenized)
+                
             file_path.write_text("\n".join(lines), encoding="UTF8")
     subprocess.run([sys.executable, "-m", "pytest"])
     for file in os.listdir():
