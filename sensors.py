@@ -88,18 +88,26 @@ class Camera:
         a = marker_position.x
         b = marker_position.y
 
+        marker_centre_vector = np.array([a, b])
+
+    
+
+        # rotation_matrix = np.array([
+        #     [cos, -sin, a * (-cos) + a + b * sin],
+        #     [sin, cos, -a*sin + b * (-cos) + b],
+        #     [0, 0, 1]
+        # ])
 
         rotation_matrix = np.array([
-            [cos, -sin, a * (-cos) + a + b * sin],
-            [sin, cos, -a*sin + b * (-cos) + b],
-            [0, 0, 1]
+            [cos, -sin],
+            [sin, cos]
         ])
 
-        naive_vector = np.array([naive_x, naive_y, 1])
+        naive_vector = np.array([naive_x, naive_y])
 
-        result_vector = rotation_matrix @ naive_vector
+        result_vector = (rotation_matrix @ (naive_vector - marker_centre_vector)) + marker_centre_vector
 
-        result_vector_list = result_vector.tolist()[:-1]
+        result_vector_list = result_vector.tolist()
         result_vector_list = [round(x) for x in result_vector_list]
 
         return Position(result_vector_list[0], result_vector_list[1])
