@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 import itertools
 import json
 import math
+import os
 from pathlib import Path
 import statistics
 
@@ -36,7 +37,8 @@ class MarkerPosition:
 
 class Camera:
     def __init__(self):
-        with open("markers.json") as file:
+        markers_path = Path(os.path.dirname(os.path.realpath(__file__)))/"markers.json"
+        with open(markers_path) as file:
             self.markers_positions = json.load(file)
 
     def get_markers(self):
@@ -63,7 +65,7 @@ class Camera:
         return Position(round(best_x), round(best_y), x_error, y_error)
 
     def get_marker_coordinate(self, marker_id: int) -> MarkerPosition:
-        return self.markers_positions[marker_id]
+        return self.markers_positions[str(marker_id)]
 
     def _calculate_position(self, marker: Marker) -> Position:
         marker_position = self.get_marker_coordinate(marker.id)
