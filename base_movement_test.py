@@ -24,7 +24,7 @@ def motors(left_motor: MyMotorMock, right_motor: MyMotorMock):
 
 @pytest.fixture
 def sleeper(logger: CommandLog):
-    return SleeperMock(logger)
+    return SleeperMock(logger, sleep_factor=0)
 
 
 @pytest.fixture
@@ -66,9 +66,31 @@ def test_turn_right(left_motor: MyMotorMock, right_motor: MyMotorMock, base_move
     assert left_motor.power == (turn_speed + offset) and right_motor.power == (offset - turn_speed)
     assert left_motor.power > right_motor.power # turning right so right tyre must spin slower
 
-@pytest.mark.parametrize("direction", [Direction.FORWARDS, Direction.BACKWARDS, Direction.LEFT, Direction.RIGHT])
+directions = [Direction.FORWARDS, Direction.BACKWARDS, Direction.LEFT, Direction.RIGHT]
+
+@pytest.mark.parametrize("direction", directions)
 @pytest.mark.parametrize("end_value", power_values(True))
 def test_stop(left_motor: MyMotorMock, right_motor: MyMotorMock, base_movement: BaseMovement, direction: Direction, end_value: power_type):
     base_movement.move(direction)
     base_movement.move(Direction.STOP, end_power=end_value)
     assert left_motor.power == right_motor.power == end_value
+
+
+@pytest.mark.parametrize("direction", directions)
+@pytest.mark.parametrize("end_value", power_values(True))
+def test_move_context_manager(left_motor: MyMotorMock, right_motor: MyMotorMock, base_movement: BaseMovement, direction: Direction, end_value: power_type):
+    if not (left_motor.power == right_motor.power == 0):
+        pytest.skip("Motors were not initialized to zero power!")
+
+    with base_movement.move_context_manager(direction, end_power=end_value):
+        assert left_motor.power != 0 and  right_motor.power != 0
+    assert left_motor.power == right_motor.power == end_value
+
+@pytest.mark.parametrize("direction", directions)
+@pytest.mark.parametrize("time", [0, 0.5, 1/3, 1, 10])
+def test_move_time(time: float, direction: Direction, motors: list[MyMotor], base_movement: BaseMovement, logger: CommandLog):
+    base_movement.move_time_blocking(time, direction)
+    assert logger.exists_log_predicate(lambda x: x[0] == CommandType.SLEEP), logger.log
+    for motor in motors:
+        assert logger.exists_log(CommandType.SET_POWER, motor.identifier, 0)
+        assert logger.exists_log_predicate(lambda x: x[0] == CommandType.SET_POWER and x[1][0] == motor.identifier and x[1][1] != 0)

@@ -44,6 +44,21 @@ class BaseMovement:
             case Direction.RIGHT:
                 self._turn_right(power=turn_power, offset=offset, end=end_power)
 
+    def move_context_manager(self, direction: Direction, *, axis_power: power_type = DEFAULT_POWER, turn_power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, end_power: power_type = DEFAULT_END):
+        self.move(direction=direction, axis_power=axis_power, turn_power = turn_power, offset = offset, end_power = end_power)
+        return self._get_stop_context_manager(end_power)
+
+    
+    def move_time_blocking(self, time: float, direction: Direction, *, axis_power: power_type = DEFAULT_POWER, turn_power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, end_power: power_type = DEFAULT_END):
+        with self.move_context_manager(direction, axis_power=axis_power, turn_power=turn_power, offset=offset, end_power=end_power):
+            self.wait(time)
+
+    def move_until_blocking(self, predicate: Callable[[], bool], direction: Direction, *, axis_power: power_type = DEFAULT_POWER, turn_power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, end_power: power_type = DEFAULT_END, ivl: float = 0.1):
+            with self.move_context_manager(direction, axis_power=axis_power, turn_power=turn_power, offset=offset, end_power=end_power):
+                while not predicate():
+                    self.wait(ivl)
+        
+
     def _get_stop_context_manager(self, end_power: power_type):
         return FunctionBasedContextManager(lambda: self.move(Direction.STOP, end_power=end_power))
 
@@ -64,6 +79,8 @@ class BaseMovement:
     def wait(self, time: float | int):
         self._sleeper(time)
 
+    
+
 
     # def forwards_time(self, time: float = 0, power: power_type = DEFAULT_POWER, *, end: power_type = DEFAULT_END):
     #     with self._forwards(power, end=end):
@@ -75,15 +92,9 @@ class BaseMovement:
     # def backwards_time(self, time: float = 0, power: power_type = DEFAULT_POWER, *, end: power_type = DEFAULT_END):
     #     self.forwards_time(time, power * -1, end=end)
 
-    # def move_until_blocking(self, predicate: Callable[[], bool], movement: Callable[[], FunctionBasedContextManager], ivl: float = 0.1):
-    #     with movement():
-    #         while not predicate():
-    #             self.wait(ivl)
+    
         
 
-    # def move_time_blocking(self, time: float, movement: Callable[[], FunctionBasedContextManager]):
-    #     with movement():
-    #         self.wait(time)
         
 
 

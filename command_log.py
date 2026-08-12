@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import Any
+from typing import Any, Callable
 
 
 
@@ -19,3 +19,7 @@ class CommandLog:
             if type == command_type and args == command_arguments:
                 return True
         return False
+    def exists_log_predicate(self, predicate: Callable[[tuple[CommandType, tuple[Any, ...]]], bool]):
+        for log in self.log:
+            if predicate(log):
+                return True
