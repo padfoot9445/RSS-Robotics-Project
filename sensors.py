@@ -83,15 +83,15 @@ class Camera:
     
     
     def _rotate_naive_position(self, naive_x: float, naive_y: float, marker_position: MarkerPosition) -> Position:
-        sin = math.sin(marker_position.angle)
-        cos = math.cos(marker_position.angle)
+        sin = math.sin(math.pi + marker_position.angle)
+        cos = math.cos(math.pi + marker_position.angle)
         a = marker_position.x
         b = marker_position.y
 
 
         rotation_matrix = np.array([
-            [cos, sin, a * (-cos) + a - b * sin],
-            [-sin, cos, a*sin + b * (-cos) + b],
+            [cos, -sin, a * (-cos) + a + b * sin],
+            [sin, cos, -a*sin + b * (-cos) + b],
             [0, 0, 1]
         ])
 
