@@ -74,7 +74,7 @@ class Camera:
         horizontal_angle = marker.position.horizontal_angle
         distance = marker.position.distance
 
-        naive_x = math.sin(horizontal_angle) * distance + marker_position.x
+        naive_x = -math.sin(horizontal_angle) * distance + marker_position.x
         naive_y = marker_position.y - (math.cos(horizontal_angle) * distance)
 
         
