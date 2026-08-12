@@ -1,6 +1,6 @@
 import time
 
-from command_log import CommandLog, CommandType
+from .command_log import CommandLog, CommandType
 
 
 class SleeperMock:

@@ -1,8 +1,8 @@
 from typing import Callable
 
-from command_log import CommandLog, CommandType
-from my_motor import MyMotor
-from type_aliases import *
+from .command_log import CommandLog, CommandType
+from .my_motor import MyMotor
+from .type_aliases import *
 from dataclasses import field
 
 class MyMotorMock(MyMotor):

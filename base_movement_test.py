@@ -1,10 +1,10 @@
 import pytest
 
-from command_log import CommandLog, CommandType
-from my_motor_mock import MyMotorMock
-from sleeper_mock import SleeperMock
-from type_aliases import *
-from base_movement import BaseMovement, Direction, MyMotor
+from .command_log import CommandLog, CommandType
+from .my_motor_mock import MyMotorMock
+from .sleeper_mock import SleeperMock
+from .type_aliases import *
+from .base_movement import BaseMovement, Direction, MyMotor
 
 @pytest.fixture
 def logger():

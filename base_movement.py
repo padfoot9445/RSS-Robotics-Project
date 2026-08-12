@@ -1,10 +1,10 @@
 from enum import Enum, auto
 from typing import Callable
-from type_aliases import *
+from .type_aliases import *
 
-from FunctionBasedContextManager import FunctionBasedContextManager
+from .FunctionBasedContextManager import FunctionBasedContextManager
 from sbot import utils, BRAKE
-from my_motor import *
+from .my_motor import *
 
 DEFAULT_POWER = 1
 DEFAULT_TURN_POWER = .2

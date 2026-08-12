@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from sbot import motors
-from type_aliases import *
+from .type_aliases import *
 
 
 
