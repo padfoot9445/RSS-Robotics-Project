@@ -74,11 +74,11 @@ class Camera:
         horizontal_angle = marker.position.horizontal_angle
         distance = marker.position.distance
 
-        opp = math.sin(horizontal_angle) * distance
-        adj = math.cos(horizontal_angle) * distance
+        naive_x = math.sin(horizontal_angle) * distance + marker_position.x
+        naive_y = marker_position.y - (math.cos(horizontal_angle) * distance)
 
         
-        return self._rotate_naive_position(naive_x=opp, naive_y=adj, marker_position=marker_position)
+        return self._rotate_naive_position(naive_x=naive_x, naive_y=naive_y, marker_position=marker_position)
 
     
     
