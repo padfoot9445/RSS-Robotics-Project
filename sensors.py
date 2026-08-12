@@ -65,7 +65,8 @@ class Camera:
         return Position(round(best_x), round(best_y), x_error, y_error)
 
     def get_marker_coordinate(self, marker_id: int) -> MarkerPosition:
-        return self.markers_positions[str(marker_id)]
+        coord = self.markers_positions[str(marker_id)]
+        return MarkerPosition(coord[0], coord[1], math.radians(coord[2]))
 
     def _calculate_position(self, marker: Marker) -> Position:
         marker_position = self.get_marker_coordinate(marker.id)
