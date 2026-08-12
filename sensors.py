@@ -56,6 +56,12 @@ class Camera:
 
     def get_markers(self):
         return vision.detect_markers() #type: ignore
+
+    def calculate_position(self):
+        if len(self.get_markers()) == 0:
+            return None
+        return RobotPosition(self.calculate_coordinate(), self.calculate_orientation())
+    
     def calculate_coordinate(self, id: set[int] | None = None) ->  RobotCoordinate | None:
         markers = self.get_markers()
         if len(markers) == 0:
@@ -134,7 +140,9 @@ class Camera:
 
         return angle + neg_yaw
 
-    def get_current_angle(self) -> RobotOrientation:
+    def calculate_orientation(self) -> RobotOrientation | None:
+        if len(self.get_markers()) == 0:
+            return None
         orientations = [self.current_angle_marker(marker) for marker in self.get_markers()]
         error = max(orientations) - min(orientations)
         best_orientation = statistics.median(orientations)
