@@ -113,53 +113,28 @@ class Camera:
         horizontal_angle = marker.position.horizontal_angle
         distance = marker.position.distance
 
-        # naive_x = -math.sin(horizontal_angle) * distance + marker_position.x
-        # naive_y = marker_position.y - (math.cos(horizontal_angle) * distance)
 
 
-        robot_marker_line_true_orientation = orientation.angle_radians + horizontal_angle
+
+        theta = horizontal_angle
+        psi = orientation.angle_radians
+        h = distance
+
+        a2 = theta + psi
+
+        dx = math.sin(a2) * h
+        dy = math.cos(a2) * h
+
         
-        snapped_line = (orientation.angle_radians % (math.pi * 2)) // (math.pi/2)
-        triangle_subtended_angle = robot_marker_line_true_orientation - snapped_line * math.pi/2
-        if horizontal_angle > 0:
-            snapped_line += 1
+        x = marker_position.x - dx
+        y = marker_position.y - dy
 
-        opp = -math.sin(triangle_subtended_angle) * distance
-        adj = -math.cos(triangle_subtended_angle) * distance
-        x: float
-        y: float
+        print(dx, dy, x, y, math.degrees(a2), marker.id)
 
-        marker_centre = np.array([marker_position.x, marker_position.y])
-
-        naive = np.array([opp, adj])
-
-        sin = math.sin(orientation.angle_radians)
-        cos = math.cos(orientation.angle_radians)
-
-        mat = np.array([
-            [cos, sin],
-            [-sin, cos]
-        ])
-
-        naive = naive - marker_centre
-        naive = mat @ naive
-        naive = naive + marker_centre
-
-        # match int(snapped_line):
-        #     case 0:
-        #         x, y = opp, adj
-        #     case 1:
-        #         x, y = adj, -opp
-        #     case 2:
-        #         x, y = -opp, -adj
-        #     case 3:
-        #         x, y = -adj, opp
-        #     case _:
-        #         raise Exception()
 
         return RobotCoordinate(
-            x = round(marker_position.x + naive[0]),
-            y = round(marker_position.y + naive[1])
+            x = round(x),
+            y = round(y)
         )
         # return self._rotate_naive_position(naive_x=naive_x, naive_y=naive_y, marker_position=marker_position)
 
