@@ -72,11 +72,15 @@ class Camera:
         markers = self.get_markers()
         if len(markers) == 0:
             return None
+        
+        orientation = self.calculate_orientation()
+        if orientation is None:
+            return None
 
         if id is None:
-            positions = [self._calculate_position(marker) for marker in markers]
+            positions = [self._calculate_position(marker, orientation) for marker in markers]
         else:
-            positions = [self._calculate_position(marker) for marker in markers if marker.id in id]
+            positions = [self._calculate_position(marker, orientation) for marker in markers if marker.id in id]
 
         x_coordinates = [x.x for x in positions]
         y_coordinates = [x.y for x in positions]
@@ -103,17 +107,26 @@ class Camera:
         return MarkerPosition(marker_coordinates[0], marker_coordinates[1], math.radians(marker_degrees))
     # TODO: Handle when to be reversed
 
-    def _calculate_position(self, marker: Marker) -> RobotCoordinate:
+    def _calculate_position(self, marker: Marker, orientation: RobotOrientation) -> RobotCoordinate:
         marker_position = self.get_marker_coordinate(marker.id)
 
         horizontal_angle = marker.position.horizontal_angle
         distance = marker.position.distance
 
-        naive_x = -math.sin(horizontal_angle) * distance + marker_position.x
-        naive_y = marker_position.y - (math.cos(horizontal_angle) * distance)
+        # naive_x = -math.sin(horizontal_angle) * distance + marker_position.x
+        # naive_y = marker_position.y - (math.cos(horizontal_angle) * distance)
 
-        
-        return self._rotate_naive_position(naive_x=naive_x, naive_y=naive_y, marker_position=marker_position)
+
+        robot_marker_line_true_orientation = orientation.angle_radians + horizontal_angle
+
+
+        x_offset = math.sin(robot_marker_line_true_orientation) * distance
+        y_offset = math.cos(robot_marker_line_true_orientation) * distance
+        return RobotCoordinate(
+            x = round(marker_position.x + x_offset),
+            y = round(marker_position.y + y_offset)
+        )
+        # return self._rotate_naive_position(naive_x=naive_x, naive_y=naive_y, marker_position=marker_position)
 
     
     
