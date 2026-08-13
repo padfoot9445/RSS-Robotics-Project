@@ -1,39 +1,103 @@
-from dataclasses import dataclass
-from typing import Callable, Literal
-from FunctionBasedContextManager import FunctionBasedContextManager
-from sbot import * #type: ignore
-from my_motor import *
+from enum import Enum, auto
+from typing import Callable
+from .type_aliases import *
+
+from .FunctionBasedContextManager import FunctionBasedContextManager
+from sbot import utils, BRAKE
+from .my_motor import *
 
 DEFAULT_POWER = 1
+DEFAULT_TURN_POWER = .2
+DEFAULT_END = BRAKE
+DEFAULT_OFFSET = 0
 
-
+class Direction(Enum):
+    STOP = auto()
+    FORWARDS = auto()
+    BACKWARDS = auto()
+    LEFT = auto()
+    RIGHT = auto()
 
 class BaseMovement:
-    def __init__(self, sleeper: Callable[[int | float], None], *motors: MyMotor):
-        self.motors = list(motors)
+    def __init__(self, sleeper: Callable[[float], None], left_motor: MyMotor, right_motor: MyMotor):
+        self.motors = [left_motor, right_motor]
         self._sleeper = sleeper
+        self.left_motor = left_motor
+        self.right_motor = right_motor
+
+    def _stop(self, *, end: power_type = DEFAULT_END):
+        for motor in self.motors:
+            motor.set_power(end)
+
+    def move(self, direction: Direction, *, axis_power: power_type = DEFAULT_POWER, turn_power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, end_power: power_type = DEFAULT_END):
+        assert axis_power >= 0 and turn_power >= 0
+
+        match direction:
+            case Direction.STOP:
+                self._stop(end=end_power)
+            case Direction.FORWARDS:
+                self._forwards(power=axis_power, end=end_power)
+            case Direction.BACKWARDS:
+                self._forwards(power=-1*axis_power, end=end_power)
+            case Direction.LEFT:
+                self._turn_left(power=turn_power, offset=offset, end=end_power)
+            case Direction.RIGHT:
+                self._turn_right(power=turn_power, offset=offset, end=end_power)
+
+    def move_context_manager(self, direction: Direction, *, axis_power: power_type = DEFAULT_POWER, turn_power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, end_power: power_type = DEFAULT_END):
+        self.move(direction=direction, axis_power=axis_power, turn_power = turn_power, offset = offset, end_power = end_power)
+        return self._get_stop_context_manager(end_power)
+
     
-    def forwards(self, power: int = DEFAULT_POWER, end: int = BRAKE):
+    def move_time_blocking(self, time: float, direction: Direction, *, axis_power: power_type = DEFAULT_POWER, turn_power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, end_power: power_type = DEFAULT_END):
+        with self.move_context_manager(direction, axis_power=axis_power, turn_power=turn_power, offset=offset, end_power=end_power):
+            self.wait(time)
+
+    def move_until_blocking(self, predicate: Callable[[], bool], direction: Direction, *, axis_power: power_type = DEFAULT_POWER, turn_power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, end_power: power_type = DEFAULT_END, ivl: float = 0.1):
+            with self.move_context_manager(direction, axis_power=axis_power, turn_power=turn_power, offset=offset, end_power=end_power):
+                while not predicate():
+                    self.wait(ivl)
+        
+
+    def _get_stop_context_manager(self, end_power: power_type):
+        return FunctionBasedContextManager(lambda: self.move(Direction.STOP, end_power=end_power))
+
+    def _turn_left(self, power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, *, end: power_type = DEFAULT_END):
+        self.left_motor.set_power(offset - power)
+        self.right_motor.set_power(power + offset)
+
+    def _turn_right(self, power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, *, end: power_type = DEFAULT_END):
+        self.right_motor.set_power(offset - power)
+        self.left_motor.set_power(power + offset)
+
+    
+    def _forwards(self, power: power_type = DEFAULT_POWER, *, end: power_type = DEFAULT_END):
         for motor in self.motors:
             motor.set_power(power)
 
-        def reset():
-            for motor in self.motors:
-                motor.set_power(end)
-
-        return FunctionBasedContextManager(reset)
 
     def wait(self, time: float | int):
         self._sleeper(time)
 
+    
 
-    def forwards_time(self, time: float | int = 0, power: int = DEFAULT_POWER, end: int = BRAKE):
-        with self.forwards(power, end):
-            self.wait(time)
 
-    def backwards(self, power: int = DEFAULT_POWER, end: int = BRAKE):
-        return self.forwards(-1 * power, end)
+    # def forwards_time(self, time: float = 0, power: power_type = DEFAULT_POWER, *, end: power_type = DEFAULT_END):
+    #     with self._forwards(power, end=end):
+    #         self.wait(time)
 
-    def backwards_time(self, time: float | int = 0, power: int = DEFAULT_POWER, end: int = BRAKE):
-        self.forwards_time(time, power * -1, end)
+    # def backwards(self, power: power_type = DEFAULT_POWER, *, end: power_type = DEFAULT_END):
+    #     return self._forwards(-1 * power, end=end)
+
+    # def backwards_time(self, time: float = 0, power: power_type = DEFAULT_POWER, *, end: power_type = DEFAULT_END):
+    #     self.forwards_time(time, power * -1, end=end)
+
+    
         
+
+        
+
+
+    @staticmethod
+    def get_sleep_prod() -> Callable[[float], None]:
+        return utils.sleep

@@ -1,16 +1,17 @@
 from dataclasses import dataclass
-from sbot import *
+from sbot import motors
+from .type_aliases import *
 
-BRAKE: int
-COAST: int
 
-@dataclass
+
 class MyMotor:
-    reversed: bool
-    identifier: int
+    def __init__(self, reversed: bool, identifier: int):
+        self.reversed = reversed
+        self.identifier = identifier
+        
     @property
     def coefficient(self):
         return 1 if not self.reversed else -1
     
-    def set_power(self, power: int):
-        sbot.motors.set_power(self.identifier, power * self.coefficient)
+    def set_power(self, power: power_type):
+        motors.set_power(self.identifier, power * self.coefficient)
