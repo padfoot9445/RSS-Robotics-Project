@@ -119,12 +119,29 @@ class Camera:
 
         robot_marker_line_true_orientation = orientation.angle_radians + horizontal_angle
 
+        triangle_subtended_angle = robot_marker_line_true_orientation % (math.pi/2)
+        snapped_line = (robot_marker_line_true_orientation % (math.pi * 2)) // (math.pi/2)
 
-        x_offset = math.sin(robot_marker_line_true_orientation) * distance
-        y_offset = math.cos(robot_marker_line_true_orientation) * distance
+        opp = math.sin(triangle_subtended_angle) * distance
+        adj = math.cos(triangle_subtended_angle) * distance
+        x: float
+        y: float
+
+        match int(snapped_line):
+            case 0:
+                x, y = opp, adj
+            case 1:
+                x, y = adj, -opp
+            case 2:
+                x, y = -opp, -adj
+            case 3:
+                x, y = -adj, opp
+            case _:
+                raise Exception()
+
         return RobotCoordinate(
-            x = round(marker_position.x + x_offset),
-            y = round(marker_position.y + y_offset)
+            x = round(marker_position.x + x),
+            y = round(marker_position.y + y)
         )
         # return self._rotate_naive_position(naive_x=naive_x, naive_y=naive_y, marker_position=marker_position)
 
