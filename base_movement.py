@@ -29,7 +29,7 @@ class BaseMovement:
         for motor in self.motors:
             motor.set_power(end)
 
-    def move(self, direction: Direction, *, axis_power: power_type | None = DEFAULT_POWER, turn_power: power_type | None = DEFAULT_TURN_POWER, offset: power_type | None = DEFAULT_OFFSET, end_power: power_type | None = DEFAULT_END):
+    def move(self, direction: Direction, *, axis_power: power_type_input = DEFAULT_POWER, turn_power: power_type_input = DEFAULT_TURN_POWER, offset: power_type_input = DEFAULT_OFFSET, end_power: power_type_input = DEFAULT_END):
         axis_power = axis_power if axis_power is not None else DEFAULT_POWER
         turn_power = turn_power if turn_power is not None else DEFAULT_TURN_POWER
         offset = offset if offset is not None else DEFAULT_OFFSET
@@ -49,22 +49,22 @@ class BaseMovement:
             case Direction.RIGHT:
                 self._turn_right(power=turn_power, offset=offset, end=end_power)
 
-    def move_context_manager(self, direction: Direction, *, axis_power: power_type = DEFAULT_POWER, turn_power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, end_power: power_type = DEFAULT_END):
+    def move_context_manager(self, direction: Direction, *, axis_power: power_type_input = DEFAULT_POWER, turn_power: power_type_input = DEFAULT_TURN_POWER, offset: power_type_input = DEFAULT_OFFSET, end_power: power_type_input = DEFAULT_END):
         self.move(direction=direction, axis_power=axis_power, turn_power = turn_power, offset = offset, end_power = end_power)
         return self._get_stop_context_manager(end_power)
 
     
-    def move_time_blocking(self, time: float, direction: Direction, *, axis_power: power_type = DEFAULT_POWER, turn_power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, end_power: power_type = DEFAULT_END):
+    def move_time_blocking(self, time: float, direction: Direction, *, axis_power: power_type_input = DEFAULT_POWER, turn_power: power_type_input = DEFAULT_TURN_POWER, offset: power_type_input = DEFAULT_OFFSET, end_power: power_type_input = DEFAULT_END):
         with self.move_context_manager(direction, axis_power=axis_power, turn_power=turn_power, offset=offset, end_power=end_power):
             self.wait(time)
 
-    def move_until_blocking(self, predicate: Callable[[], bool], direction: Direction, *, axis_power: power_type = DEFAULT_POWER, turn_power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, end_power: power_type = DEFAULT_END, ivl: float = 0.1):
+    def move_until_blocking(self, predicate: Callable[[], bool], direction: Direction, *, axis_power: power_type_input = DEFAULT_POWER, turn_power: power_type_input = DEFAULT_TURN_POWER, offset: power_type_input = DEFAULT_OFFSET, end_power: power_type_input = DEFAULT_END, ivl: float = 0.1):
             with self.move_context_manager(direction, axis_power=axis_power, turn_power=turn_power, offset=offset, end_power=end_power):
                 while not predicate():
                     self.wait(ivl)
         
 
-    def _get_stop_context_manager(self, end_power: power_type):
+    def _get_stop_context_manager(self, end_power: power_type_input):
         return FunctionBasedContextManager(lambda: self.move(Direction.STOP, end_power=end_power))
 
     def _turn_left(self, power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, *, end: power_type = DEFAULT_END):
@@ -87,14 +87,14 @@ class BaseMovement:
     
 
 
-    # def forwards_time(self, time: float = 0, power: power_type = DEFAULT_POWER, *, end: power_type = DEFAULT_END):
+    # def forwards_time(self, time: float = 0, power: power_type_input = DEFAULT_POWER, *, end: power_type_input = DEFAULT_END):
     #     with self._forwards(power, end=end):
     #         self.wait(time)
 
-    # def backwards(self, power: power_type = DEFAULT_POWER, *, end: power_type = DEFAULT_END):
+    # def backwards(self, power: power_type_input = DEFAULT_POWER, *, end: power_type_input = DEFAULT_END):
     #     return self._forwards(-1 * power, end=end)
 
-    # def backwards_time(self, time: float = 0, power: power_type = DEFAULT_POWER, *, end: power_type = DEFAULT_END):
+    # def backwards_time(self, time: float = 0, power: power_type_input = DEFAULT_POWER, *, end: power_type_input = DEFAULT_END):
     #     self.forwards_time(time, power * -1, end=end)
 
     
