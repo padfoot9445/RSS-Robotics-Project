@@ -1,8 +1,8 @@
 import math
 from typing import Callable
 
-from controller import Controller
-from helpers import sign
+from .mycontroller import Controller
+from .helpers import sign
 
 from .sensors import Camera, RobotCoordinate, RobotPosition
 from .base_movement import BaseMovement, Direction
@@ -16,8 +16,8 @@ class Movement:
         self.controller_factory = controller_factory
         self.last_orientation_error = None
 
-    def get_position(self) -> RobotPosition:
-        pass
+    def get_position(self) -> RobotPosition | None:
+        return self.camera.calculate_position()
 
     def seek_coordinate(self, target_coordinate: RobotCoordinate, current_position: RobotPosition):
         
@@ -65,7 +65,10 @@ class Movement:
             returns: difference in orientation, where if the robot is too clockwise, then positive; if the robot is too ccw, then negative
         
             """
-        naive_error = self.get_position().orientation.angle_radians - target_orientation
+        position = self.get_position()
+        if position is None:
+            return None
+        naive_error = position.orientation.angle_radians - target_orientation
         
         if self.last_orientation_error is None or naive_error == 0:
             self.last_orientation_error = naive_error
@@ -90,9 +93,9 @@ class Movement:
         match current_error:
             case 0 | 0.0:
                 return
-            case x if x > 0: # error > 0, so robot is pointing too far right, so
+            case float(x) | int(x) if x > 0: # error > 0, so robot is pointing too far right, so
                 handle_null_error_direction = Direction.LEFT
-            case x if x < 0: # error < 0, so robot is pointing too far left, so
+            case float(x) | int(x) if x < 0: # error < 0, so robot is pointing too far left, so
                 handle_null_error_direction = Direction.RIGHT
             case _:
                 handle_null_error_direction = Direction.RIGHT # default clockwise

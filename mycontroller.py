@@ -1,7 +1,7 @@
 import math
 from typing import Callable
 
-from helpers import sign
+from .helpers import sign
 from .type_aliases import *
 STEP = 0.2
 POWER = None
