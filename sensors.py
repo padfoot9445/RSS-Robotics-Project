@@ -120,7 +120,9 @@ class Camera:
         robot_marker_line_true_orientation = orientation.angle_radians + horizontal_angle
 
         triangle_subtended_angle = robot_marker_line_true_orientation % (math.pi/2)
-        snapped_line = (robot_marker_line_true_orientation % (math.pi * 2)) // (math.pi/2)
+        snapped_line = (orientation.angle_radians % (math.pi * 2)) // (math.pi/2)
+        if horizontal_angle > 0:
+            snapped_line += 1
 
         opp = math.sin(triangle_subtended_angle) * distance
         adj = math.cos(triangle_subtended_angle) * distance
