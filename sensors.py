@@ -57,6 +57,7 @@ class Camera:
         markers_path = Path(os.path.dirname(os.path.realpath(__file__)))/"markers.json"
         with open(markers_path) as file:
             self.markers_positions = json.load(file)
+        self.reversed = False
 
     def get_markers(self):
         return vision.detect_markers() #type: ignore
