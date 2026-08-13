@@ -94,3 +94,8 @@ def test_move_time(time: float, direction: Direction, motors: list[MyMotor], bas
     for motor in motors:
         assert logger.exists_log(CommandType.SET_POWER, motor.identifier, 0)
         assert logger.exists_log_predicate(lambda x: x[0] == CommandType.SET_POWER and x[1][0] == motor.identifier and x[1][1] != 0)
+@pytest.mark.parametrize("direction", directions)
+def test_move_none_power__sets_to_nonnull(direction: Direction, base_movement: BaseMovement, logger: CommandLog, motors: list[MyMotor]):
+    base_movement.move(direction, axis_power=None, turn_power=None, offset=None, end_power=None)
+    for motor in motors:
+        assert logger.exists_log_predicate(lambda x: x[0] == CommandType.SET_POWER and x[1][0] == motor.identifier and x[1][1] is not None)

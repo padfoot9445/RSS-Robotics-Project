@@ -29,7 +29,12 @@ class BaseMovement:
         for motor in self.motors:
             motor.set_power(end)
 
-    def move(self, direction: Direction, *, axis_power: power_type = DEFAULT_POWER, turn_power: power_type = DEFAULT_TURN_POWER, offset: power_type = DEFAULT_OFFSET, end_power: power_type = DEFAULT_END):
+    def move(self, direction: Direction, *, axis_power: power_type | None = DEFAULT_POWER, turn_power: power_type | None = DEFAULT_TURN_POWER, offset: power_type | None = DEFAULT_OFFSET, end_power: power_type | None = DEFAULT_END):
+        axis_power = axis_power if axis_power is not None else DEFAULT_POWER
+        turn_power = turn_power if turn_power is not None else DEFAULT_TURN_POWER
+        offset = offset if offset is not None else DEFAULT_OFFSET
+        end_power = end_power if end_power is not None else DEFAULT_END
+
         assert axis_power >= 0 and turn_power >= 0
 
         match direction:
