@@ -46,13 +46,14 @@ class MarkerPosition:
     angle_radians: float # upwards is zero, rightwards is 90 degrees, but this is measured in radians
     @property
     def angle_degrees(self):
-        math.degrees(self.angle_radians)
+        return math.degrees(self.angle_radians)
 
 class Camera:
     def __init__(self):
         markers_path = Path(os.path.dirname(os.path.realpath(__file__)))/"markers.json"
         with open(markers_path) as file:
             self.markers_positions = json.load(file)
+        self.reversed = False
 
     def get_markers(self):
         return vision.detect_markers() #type: ignore
@@ -85,7 +86,10 @@ class Camera:
 
     def get_marker_coordinate(self, marker_id: int) -> MarkerPosition:
         coord = self.markers_positions[str(marker_id)]
-        return MarkerPosition(coord[0], coord[1], math.radians(coord[2]))
+        marker_degrees = coord[2]
+        if self.reversed:
+            marker_degrees = (marker_degrees + 180) % 360
+        return MarkerPosition(coord[0], coord[1], math.radians(marker_degrees))
 
     def _calculate_position(self, marker: Marker) -> RobotCoordinate:
         marker_position = self.get_marker_coordinate(marker.id)
