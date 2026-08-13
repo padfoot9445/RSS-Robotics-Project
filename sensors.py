@@ -90,6 +90,7 @@ class Camera:
         if self.reversed:
             marker_degrees = (marker_degrees + 180) % 360
         return MarkerPosition(coord[0], coord[1], math.radians(marker_degrees))
+    # TODO: Handle when to be reversed
 
     def _calculate_position(self, marker: Marker) -> RobotCoordinate:
         marker_position = self.get_marker_coordinate(marker.id)
