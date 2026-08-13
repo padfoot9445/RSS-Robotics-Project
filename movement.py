@@ -28,11 +28,11 @@ class Movement:
     def seek_distance(self):
         self.seek_orientation(math.pi/2)
         self.base_movement.move_until_blocking(lambda: self.seek_position().coordinate.x > 3300, Direction.FORWARDS)
-        self.seek_orientation(math.pi)
+        self.seek_orientation(0)
         self.base_movement.move_until_blocking(lambda: self.seek_position().coordinate.y > 1960, Direction.FORWARDS)
         self.seek_orientation(math.pi/2)
         self.base_movement.move_until_blocking(lambda: self.seek_position().coordinate.x > 4800, Direction.FORWARDS)
-        self.seek_orientation(math.pi)
+        self.seek_orientation(0)
         self.base_movement.move_until_blocking(lambda: self.seek_position().coordinate.y > 4200, Direction.FORWARDS)
 
     def seek_coordinate(self, target_coordinate: RobotCoordinate, current_position: RobotPosition):
