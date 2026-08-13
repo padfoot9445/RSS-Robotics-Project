@@ -1,8 +1,8 @@
-from typing import Callable
+from typing import Callable, List
 
 
-type power_type = float
-type power_type_input = power_type | None
-type error_changer = Callable[[float, power_type | None], None]
-type error_reporter = Callable[[], float | None]
-type controller_factory[T] = Callable[[error_reporter, error_changer, error_changer, error_changer], T]
+power_type = List
+power_type_input = List
+error_changer = List
+error_reporter = List
+controller_factory = List
