@@ -94,7 +94,8 @@ class Camera:
                 [0, -1],
                 [-1, 0]
             ])
-            marker_coordinates = rotation_matrix @ marker_coordinates
+            translation_vector = np.array([2700, 2700])
+            marker_coordinates = translation_vector + (rotation_matrix @ (marker_coordinates - translation_vector))
         return MarkerPosition(marker_coordinates[0], marker_coordinates[1], math.radians(marker_degrees))
     # TODO: Handle when to be reversed
 
