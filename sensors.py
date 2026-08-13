@@ -25,8 +25,6 @@ class RobotOrientation:
     def angle_degrees(self):
         return math.degrees(self.angle_radians)
 
-    def __post_init__(self):
-        self.angle_radians = self.angle_radians + math.pi if self.angle_radians < 0 else self.angle_radians
 
 @dataclass
 class RobotCoordinate:
