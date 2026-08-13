@@ -3,7 +3,7 @@ from typing import Callable
 
 from .helpers import sign
 from .type_aliases import *
-STEP = 0.2
+STEP = 0.1
 POWER = None
 
 class Controller:
@@ -35,7 +35,7 @@ class Controller:
     def lower_absolute_error(self, stop_switch_null: bool = False):
 
         """stop_switch_null determines if the error correction process should be determined to be finished if the error was non-null but became null"""
-        _, starting_sign = self._acquire_error_and_sign()
+        error, starting_sign = self._acquire_error_and_sign()
 
         if starting_sign == 0:
             return
@@ -50,13 +50,14 @@ class Controller:
         # we know to be true that error is not non-null because acquire error and sign guarantees that
         while sign == starting_sign:
 
-            fn_main(STEP, POWER)
+            fn_main(STEP * min(abs(error), 1), POWER)
+            print(error)
             if stop_switch_null:
-                _, sign = self._error_and_sign()
+                error, sign = self._error_and_sign()
                 if sign == None:
                     return
             else:
-                _, sign = self._acquire_error_and_sign()
+                error, sign = self._acquire_error_and_sign()
 
-        fn_other(STEP, POWER)
+        # fn_other(STEP * min(abs(error), 1), POWER)
 

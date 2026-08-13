@@ -66,6 +66,7 @@ class Movement:
         
             """
         position = self.get_position()
+        print(position)
         if position is None:
             return None
         naive_error = position.orientation.angle_radians - target_orientation

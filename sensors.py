@@ -64,7 +64,8 @@ class Camera:
     def calculate_position(self):
         if len(self.get_markers()) == 0:
             return None
-        return RobotPosition(self.calculate_coordinate(), self.calculate_orientation())
+        coord, orientation = self.calculate_coordinate(), self.calculate_orientation()
+        return None if coord is None or orientation is None else RobotPosition(coord, orientation)
     
     def calculate_coordinate(self, id: set[int] | None = None) ->  RobotCoordinate | None:
         markers = self.get_markers()
