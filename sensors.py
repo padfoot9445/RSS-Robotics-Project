@@ -124,26 +124,42 @@ class Camera:
         if horizontal_angle > 0:
             snapped_line += 1
 
-        opp = math.sin(triangle_subtended_angle) * distance
-        adj = math.cos(triangle_subtended_angle) * distance
+        opp = -math.sin(triangle_subtended_angle) * distance
+        adj = -math.cos(triangle_subtended_angle) * distance
         x: float
         y: float
 
-        match int(snapped_line):
-            case 0:
-                x, y = opp, adj
-            case 1:
-                x, y = adj, -opp
-            case 2:
-                x, y = -opp, -adj
-            case 3:
-                x, y = -adj, opp
-            case _:
-                raise Exception()
+        marker_centre = np.array([marker_position.x, marker_position.y])
+
+        naive = np.array([opp, adj])
+
+        sin = math.sin(orientation.angle_radians)
+        cos = math.cos(orientation.angle_radians)
+
+        mat = np.array([
+            [cos, sin],
+            [-sin, cos]
+        ])
+
+        naive = naive - marker_centre
+        naive = mat @ naive
+        naive = naive + marker_centre
+
+        # match int(snapped_line):
+        #     case 0:
+        #         x, y = opp, adj
+        #     case 1:
+        #         x, y = adj, -opp
+        #     case 2:
+        #         x, y = -opp, -adj
+        #     case 3:
+        #         x, y = -adj, opp
+        #     case _:
+        #         raise Exception()
 
         return RobotCoordinate(
-            x = round(marker_position.x + x),
-            y = round(marker_position.y + y)
+            x = round(marker_position.x + naive[0]),
+            y = round(marker_position.y + naive[1])
         )
         # return self._rotate_naive_position(naive_x=naive_x, naive_y=naive_y, marker_position=marker_position)
 
