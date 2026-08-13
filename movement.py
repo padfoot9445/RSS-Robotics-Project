@@ -99,7 +99,7 @@ class Movement:
             case float(x) | int(x) if x < 0: # error < 0, so robot is pointing too far left, so
                 handle_null_error_direction = Direction.RIGHT
             case _:
-                handle_null_error_direction = Direction.RIGHT # default clockwise
+                handle_null_error_direction = Direction.LEFT # default ccw
 
         def get_error_handler(direction: Direction):
                 def inner(step: float, power: power_type | None):
