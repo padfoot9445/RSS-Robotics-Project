@@ -3,7 +3,7 @@ from typing import Callable
 
 from .helpers import sign
 from .type_aliases import *
-STEP = 0.1
+STEP = 0.2
 POWER = None
 
 class Controller:

@@ -7,7 +7,7 @@ from sbot import utils, BRAKE
 from .my_motor import *
 
 DEFAULT_POWER = 1
-DEFAULT_TURN_POWER = .2
+DEFAULT_TURN_POWER = .5
 DEFAULT_END = BRAKE
 DEFAULT_OFFSET = 0
 
