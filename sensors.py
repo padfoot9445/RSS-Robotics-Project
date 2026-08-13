@@ -19,8 +19,14 @@ class Ultrasound:
 
 @dataclass
 class RobotOrientation:
-    orientation: float # angle in radians, vertically upwards is 0, right is pi/2, left is -pi/2
+    angle_radians: float # angle in radians, vertically upwards is 0, right is pi/2, left is 3pi/2
     error: float | None = field(default=None)
+    @property
+    def angle_degrees(self):
+        return math.degrees(self.angle_radians)
+
+    def __post_init__(self):
+        self.angle_radians = self.angle_radians + math.pi if self.angle_radians < 0 else self.angle_radians
 
 @dataclass
 class RobotCoordinate:
