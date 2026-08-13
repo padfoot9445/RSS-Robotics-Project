@@ -90,7 +90,17 @@ class Camera:
 
     def get_marker_coordinate(self, marker_id: int) -> MarkerPosition:
         coord = self.markers_positions[str(marker_id)]
-        return MarkerPosition(coord[0], coord[1], math.radians(coord[2]))
+        marker_degrees = coord[2]
+        marker_coordinates = np.array([coord[0], coord[1]])
+        if self.reversed:
+            marker_degrees = (marker_degrees + 180) % 360
+            rotation_matrix = np.array([
+                [0, -1],
+                [-1, 0]
+            ])
+            marker_coordinates = rotation_matrix @ marker_coordinates
+        return MarkerPosition(marker_coordinates[0], marker_coordinates[1], math.radians(marker_degrees))
+    # TODO: Handle when to be reversed
 
     def _calculate_position(self, marker: Marker) -> RobotCoordinate:
         marker_position = self.get_marker_coordinate(marker.id)
