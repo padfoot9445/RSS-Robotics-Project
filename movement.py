@@ -16,8 +16,24 @@ class Movement:
         self.controller_factory = controller_factory
         self.last_orientation_error = None
 
+    def seek_position(self) -> RobotPosition:
+        position = self.get_position()
+        while position is None:
+            self.base_movement.move_time_blocking(0.1, Direction.LEFT)
+        return position
+
     def get_position(self) -> RobotPosition | None:
         return self.camera.calculate_position()
+
+    def seek_distance(self):
+        self.seek_orientation(math.pi/2)
+        self.base_movement.move_until_blocking(lambda: self.seek_position().coordinate.x > 3300, Direction.FORWARDS)
+        self.seek_orientation(math.pi)
+        self.base_movement.move_until_blocking(lambda: self.seek_position().coordinate.y > 1960, Direction.FORWARDS)
+        self.seek_orientation(math.pi/2)
+        self.base_movement.move_until_blocking(lambda: self.seek_position().coordinate.x > 4800, Direction.FORWARDS)
+        self.seek_orientation(math.pi)
+        self.base_movement.move_until_blocking(lambda: self.seek_position().coordinate.y > 4200, Direction.FORWARDS)
 
     def seek_coordinate(self, target_coordinate: RobotCoordinate, current_position: RobotPosition):
         
@@ -49,7 +65,7 @@ class Movement:
                 - error_x: current_coordinate.error_x
                 - error_y: current_coordinate.error_y
         """
-        current_coordinate = self.get_position().coordinate
+        current_coordinate = self.seek_position().coordinate
 
         return RobotCoordinate(
             x=current_coordinate.x - target_coordinate.x,
